@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}My Attendance{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_student.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">My Attendance</span>
+      </div>
+    </div>
+    <div class="page-body fade-in">
+
+      {# Per-subject summary cards #}
+      <div class="row g-4 mb-4">
+        {% for stat in subject_stats %}
+        <div class="col-md-6">
+          <div class="form-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <span class="badge bg-primary">{{ stat.subject.code }}</span>
+                <div class="fw-bold mt-1" style="color:#0f2044;">{{ stat.subject.name }}</div>
+              </div>
+              <div class="text-end">
+                <div class="stat-value" style="font-size:1.4rem;">{{ stat.rate }}%</div>
+                <div class="stat-label">Attendance Rate</div>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height:8px;">
+              <div class="progress-bar {% if stat.rate >= 80 %}bg-success{% elif stat.rate >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
+                   style="width:{{ stat.rate }}%;"></div>
+            </div>
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Present: {{ stat.present }}</span>
+              <span>Total: {{ stat.total }}</span>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+          <p class="text-muted text-center">No attendance records yet.</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      {# Detailed attendance records table #}
+      <div class="portal-table">
+        <div class="p-3 border-bottom fw-bold" style="color:#0f2044;background:#f8faff;">
+          <i class="bi bi-clock-history me-2 text-primary"></i>Attendance Records
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Subject</th>
+                <th class="text-center">Status</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rec in all_records %}
+              <tr>
+                <td>{{ rec.date|date:"M d, Y" }}</td>
+                <td><span class="badge bg-primary">{{ rec.subject.code }}</span> {{ rec.subject.name }}</td>
+                <td class="text-center">
+                  <span class="badge {% if rec.status == 'present' %}bg-success{% elif rec.status == 'absent' %}bg-danger{% elif rec.status == 'late' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ rec.get_status_display }}
+                  </span>
+                </td>
+                <td class="text-muted small">{{ rec.remarks|default:"—" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">No attendance records yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include 'partials/pagination.html' %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

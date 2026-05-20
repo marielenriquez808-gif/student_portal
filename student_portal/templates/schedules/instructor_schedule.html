@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}My Schedule{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_instructor.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">My Teaching Schedule</span>
+      </div>
+      <span class="text-muted small">{{ instructor.full_name }}</span>
+    </div>
+    <div class="page-body fade-in">
+      <div class="portal-table p-3">
+        <h6 class="fw-800 mb-3"><i class="bi bi-calendar3 me-2 text-primary"></i>Assigned Class Schedules</h6>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Room</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in schedules %}
+            <tr>
+              <td><span class="badge bg-primary">{{ s.subject.code }}</span> {{ s.subject.name }}</td>
+              <td>{{ s.section.name }}</td>
+              <td class="text-capitalize">{{ s.day }}</td>
+              <td>{{ s.time_start|time:"g:i A" }} &ndash; {{ s.time_end|time:"g:i A" }}</td>
+              <td>{{ s.room|default:"TBA" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No assigned schedules available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

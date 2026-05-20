@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Schedule{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">{{ action }} Schedule</span>
+      </div>
+      <a href="{% url 'admin_schedules' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to Schedules
+      </a>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+      <div class="form-card" style="max-width:700px">
+        <form method="post">{% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Instructor <span class="text-danger">*</span></label>
+              {{ form.instructor }}
+              {% if form.instructor.errors %}<div class="text-danger small">{{ form.instructor.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Subject <span class="text-danger">*</span></label>
+              {{ form.subject }}
+              {% if form.subject.errors %}<div class="text-danger small">{{ form.subject.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Section</label>
+              {{ form.section }}
+              {% if form.section.errors %}<div class="text-danger small">{{ form.section.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Day <span class="text-danger">*</span></label>
+              {{ form.day }}
+              {% if form.day.errors %}<div class="text-danger small">{{ form.day.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Time Start <span class="text-danger">*</span></label>
+              {{ form.time_start }}
+              {% if form.time_start.errors %}<div class="text-danger small">{{ form.time_start.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Time End <span class="text-danger">*</span></label>
+              {{ form.time_end }}
+              {% if form.time_end.errors %}<div class="text-danger small">{{ form.time_end.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Room</label>
+              {{ form.room }}
+              {% if form.room.errors %}<div class="text-danger small">{{ form.room.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">School Year</label>
+              {{ form.school_year }}
+              {% if form.school_year.errors %}<div class="text-danger small">{{ form.school_year.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Semester <span class="text-danger">*</span></label>
+              {{ form.semester }}
+              {% if form.semester.errors %}<div class="text-danger small">{{ form.semester.errors }}</div>{% endif %}
+            </div>
+            {% if form.errors %}
+            <div class="col-12">
+              <div class="alert alert-danger small">{{ form.errors }}</div>
+            </div>
+            {% endif %}
+            <div class="col-12 d-flex gap-2 mt-2">
+              <button type="submit" class="btn btn-primary fw-bold px-4">
+                <i class="bi bi-save me-1"></i>{{ action }} Schedule
+              </button>
+              <a href="{% url 'admin_schedules' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

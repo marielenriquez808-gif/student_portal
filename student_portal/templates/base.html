@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Portal System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SITE-WIDE TOP NAVBAR
+     3-column flex → logo is mathematically centred regardless
+     of what appears in the left/right flanks.
+     ═══════════════════════════════════════════════════════════ -->
+<nav class="site-navbar" aria-label="Site navigation">
+  <!-- Left flank (equal flex, currently empty — add items here if needed) -->
+  <div class="site-navbar-side"></div>
+
+  <!-- Centre: logo, perfectly centred -->
+  <div class="site-navbar-center">
+    <a href="{% url 'home' %}" class="site-navbar-brand-link" title="Student Portal System">
+      <img src="{% static 'images/logo.png' %}"
+           alt="Student Portal System"
+           class="site-navbar-logo">
+    </a>
+  </div>
+
+  <!-- Right flank (equal flex, mirrors left for true centre) -->
+  <div class="site-navbar-side"></div>
+</nav>
+
+{% block body %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% load static %}
+<script src="{% static 'js/portal.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

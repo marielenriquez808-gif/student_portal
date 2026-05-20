@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Admin Dashboard</span>
+      </div>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+      <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-4"><div class="stat-card"><div class="stat-icon blue"><i class="bi bi-people-fill"></i></div><div><div class="stat-value">{{ total_students }}</div><div class="stat-label">Total Students</div></div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-person-badge"></i></div><div><div class="stat-value">{{ total_instructors }}</div><div class="stat-label">Total Instructors</div></div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="stat-card"><div class="stat-icon purple"><i class="bi bi-book"></i></div><div><div class="stat-value">{{ total_subjects }}</div><div class="stat-label">Total Subjects</div></div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-hourglass-split"></i></div><div><div class="stat-value">{{ pending_enrollments }}</div><div class="stat-label">Pending Enrollments</div></div></div></div>
+        <div class="col-sm-6 col-xl-4"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-check-circle"></i></div><div><div class="stat-value">{{ approved_enrollments }}</div><div class="stat-label">Approved Enrollments</div></div></div></div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6"><a href="{% url 'admin_students' %}" class="btn btn-primary w-100 py-3 fw-bold fs-5"><i class="bi bi-people-fill me-2"></i>Student Admin Panel</a></div>
+        <div class="col-md-6"><a href="{% url 'admin_instructors' %}" class="btn btn-outline-primary w-100 py-3 fw-bold fs-5"><i class="bi bi-person-badge me-2"></i>Instructor Admin Panel</a></div>
+      </div>
+      <div class="portal-table p-3 mt-4">
+        <h6 class="fw-800 mb-3"><i class="bi bi-megaphone me-2 text-primary"></i>Latest Announcements</h6>
+        {% for ann in announcements %}<div class="border-start border-primary border-3 ps-3 mb-3"><div class="fw-semibold">{{ ann.title }}</div><div class="text-muted small">{{ ann.content|truncatewords:25 }}</div></div>{% empty %}<p class="text-muted">No announcements.</p>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

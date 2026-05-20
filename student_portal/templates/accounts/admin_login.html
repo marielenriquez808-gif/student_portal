@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Admin Login{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card fade-in">
+    <div class="auth-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Admin Portal" class="auth-logo-img">
+      <h4>Admin Portal</h4>
+    </div>
+    {% include 'partials/messages.html' %}
+    <form method="post">{% csrf_token %}
+      <div class="mb-3"><label class="form-label fw-semibold">Admin Email</label>{{ form.email }}</div>
+      <div class="mb-3"><label class="form-label fw-semibold">Password</label>{{ form.password }}</div>
+      <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Sign In</button>
+    </form>
+    <p class="text-center small mt-3"><a href="{% url 'student_login' %}">Student Login</a> | <a href="{% url 'instructor_login' %}">Instructor Login</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Subject Management{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Subject Management</span>
+      </div>
+      <a href="{% url 'admin_subject_create' %}" class="btn btn-primary btn-sm fw-semibold">
+        <i class="bi bi-plus-circle me-1"></i>Add Subject
+      </a>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+
+      {# Filters #}
+      <div class="form-card mb-4">
+        <form method="get" class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Department</label>
+            <select name="dept" class="form-control">
+              <option value="">All Departments</option>
+              {% for d in departments %}
+              <option value="{{ d.id }}" {% if request.GET.dept == d.id|stringformat:'s' %}selected{% endif %}>{{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Program</label>
+            <select name="prog" class="form-control">
+              <option value="">All Programs</option>
+              {% for p in programs %}
+              <option value="{{ p.id }}" {% if request.GET.prog == p.id|stringformat:'s' %}selected{% endif %}>{{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold small">Year Level</label>
+            <select name="year" class="form-control">
+              <option value="">All Years</option>
+              <option value="1" {% if request.GET.year == '1' %}selected{% endif %}>1st Year</option>
+              <option value="2" {% if request.GET.year == '2' %}selected{% endif %}>2nd Year</option>
+              <option value="3" {% if request.GET.year == '3' %}selected{% endif %}>3rd Year</option>
+              <option value="4" {% if request.GET.year == '4' %}selected{% endif %}>4th Year</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold small">Semester</label>
+            <select name="sem" class="form-control">
+              <option value="">All Semesters</option>
+              <option value="1st" {% if request.GET.sem == '1st' %}selected{% endif %}>1st Semester</option>
+              <option value="2nd" {% if request.GET.sem == '2nd' %}selected{% endif %}>2nd Semester</option>
+              <option value="summer" {% if request.GET.sem == 'summer' %}selected{% endif %}>Summer</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+            <a href="{% url 'admin_subjects' %}" class="btn btn-outline-secondary w-100">Clear</a>
+          </div>
+        </form>
+      </div>
+
+      {# Subject table #}
+      <div class="portal-table">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Subject Name</th>
+              <th>Units</th>
+              <th>Department</th>
+              <th>Program</th>
+              <th>Year</th>
+              <th>Semester</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in subjects %}
+            <tr>
+              <td><span class="badge bg-primary">{{ s.code }}</span></td>
+              <td>{{ s.name }}</td>
+              <td class="text-center">{{ s.units }}</td>
+              <td class="small text-muted">{{ s.department.code }}</td>
+              <td>{{ s.program.code }}</td>
+              <td>Year {{ s.year_level }}</td>
+              <td>
+                {% if s.semester == '1st' %}1st Semester
+                {% elif s.semester == '2nd' %}2nd Semester
+                {% else %}Summer{% endif %}
+              </td>
+              <td>
+                <a href="{% url 'admin_subject_edit' s.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form method="post" action="{% url 'admin_subject_delete' s.pk %}" class="d-inline"
+                      onsubmit="return confirm('Delete {{ s.code }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="text-center text-muted py-4">No subjects found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% include 'partials/pagination.html' %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

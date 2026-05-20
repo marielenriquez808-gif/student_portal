@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% block title %}Generate Report{% endblock %}
+{% block body %}
+
+{# ── Print-only styles ────────────────────────────────────────────────────── #}
+<style>
+/* ---------- screen layout tweaks ---------- */
+.report-section { margin-bottom: 2.5rem; }
+.report-table th, .report-table td { font-size: .80rem; padding: .35rem .5rem; vertical-align: middle; }
+.report-table th { background: #0f2044; color: #fff; white-space: nowrap; }
+.grade-col { min-width: 52px; text-align: center; }
+.att-col   { min-width: 48px; text-align: center; }
+.rate-badge { font-size: .75rem; }
+
+/* ---------- @print ---------- */
+@media print {
+  /* hide everything UI */
+  .sidebar, .topbar, .no-print { display: none !important; }
+  .portal-layout { display: block !important; }
+  .main-content  { margin-left: 0 !important; width: 100% !important; padding: 0 !important; }
+  .page-body     { padding: 0 !important; }
+  body           { font-size: 10pt; background: #fff; }
+
+  /* page setup */
+  @page { size: A4 landscape; margin: 1.2cm 1.5cm; }
+
+  /* report header */
+  .print-header  { display: block !important; margin-bottom: .8cm; }
+
+  /* section breaks */
+  .report-section { page-break-inside: avoid; margin-bottom: 1.2cm; }
+  .report-section + .report-section { page-break-before: auto; }
+
+  /* table */
+  .report-table th { background: #0f2044 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .report-table th, .report-table td { font-size: 8.5pt; padding: 3px 5px; }
+  .table-responsive { overflow: visible !important; }
+
+  /* badge colours */
+  .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* no shadow/card borders */
+  .portal-table, .form-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+}
+
+/* hide print-header on screen */
+.print-header { display: none; }
+</style>
+
+<div class="portal-layout">
+  {% include 'partials/sidebar_instructor.html' %}
+  <div class="main-content">
+    <div class="topbar no-print">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Generate Report</span>
+      </div>
+      <span class="text-muted small">{{ instructor.full_name }}</span>
+    </div>
+
+    <div class="page-body fade-in">
+
+      {# ── Print-only document header ─────────────────────────────────────── #}
+      <div class="print-header">
+        <div style="text-align:center;border-bottom:2px solid #0f2044;padding-bottom:.4cm;margin-bottom:.4cm;">
+          <div style="font-size:14pt;font-weight:700;color:#0f2044;">Student Grade &amp; Attendance Report</div>
+          <div style="font-size:10pt;">Instructor: <strong>{{ instructor.full_name }}</strong></div>
+          <div style="font-size:9pt;color:#555;">
+            Date Generated: {{ today|date:"F d, Y" }}
+            {% if filters.date_from or filters.date_to %}
+            &nbsp;|&nbsp; Attendance Period:
+              {% if filters.date_from %}{{ filters.date_from }}{% else %}—{% endif %}
+              to
+              {% if filters.date_to %}{{ filters.date_to }}{% else %}present{% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# ── Filter Form ────────────────────────────────────────────────────── #}
+      <div class="form-card mb-4 no-print">
+        <div class="fw-bold mb-3" style="color:#0f2044;"><i class="bi bi-funnel me-2 text-primary"></i>Report Filters</div>
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Subject</label>
+            <select name="subject" class="form-control">
+              <option value="">All My Subjects</option>
+              {% for s in all_subjects %}
+              <option value="{{ s.pk }}" {% if filters.subject == s.pk|stringformat:'s' %}selected{% endif %}>
+                [{{ s.code }}] {{ s.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold small">Year Level</label>
+            <select name="year_level" class="form-control">
+              <option value="">All Years</option>
+              <option value="1" {% if filters.year_level == '1' %}selected{% endif %}>1st Year</option>
+              <option value="2" {% if filters.year_level == '2' %}selected{% endif %}>2nd Year</option>
+              <option value="3" {% if filters.year_level == '3' %}selected{% endif %}>3rd Year</option>
+              <option value="4" {% if filters.year_level == '4' %}selected{% endif %}>4th Year</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold small">Section</label>
+            <select name="section" class="form-control">
+              <option value="">All Sections</option>
+              {% for sec in sections %}
+              <option value="{{ sec.pk }}" {% if filters.section == sec.pk|stringformat:'s' %}selected{% endif %}>
+                {{ sec.program.code }} Y{{ sec.year_level }}-{{ sec.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold small">Attendance From</label>
+            <input type="date" name="date_from" class="form-control"
+                   value="{{ filters.date_from }}" max="{{ today|date:'Y-m-d' }}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold small">Attendance To</label>
+            <input type="date" name="date_to" class="form-control"
+                   value="{{ filters.date_to }}" max="{{ today|date:'Y-m-d' }}">
+          </div>
+          <div class="col-md-1 d-flex flex-column gap-2">
+            <button type="submit" class="btn btn-primary btn-sm w-100">
+              <i class="bi bi-search"></i> Go
+            </button>
+            <a href="{% url 'instructor_report' %}" class="btn btn-outline-secondary btn-sm w-100">
+              <i class="bi bi-x"></i> Clear
+            </a>
+          </div>
+        </form>
+      </div>
+
+      {# ── Action bar ─────────────────────────────────────────────────────── #}
+      {% if report_data %}
+      <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <div class="text-muted small">
+          Showing <strong>{{ report_data|length }}</strong> subject{{ report_data|length|pluralize }}
+          {% if filters.date_from or filters.date_to %}
+          &nbsp;|&nbsp; Attendance:
+          {% if filters.date_from %}<strong>{{ filters.date_from }}</strong>{% else %}start{% endif %}
+          →
+          {% if filters.date_to %}<strong>{{ filters.date_to }}</strong>{% else %}today{% endif %}
+          {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary btn-sm fw-semibold" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i>Print Report
+          </button>
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── Report Sections ────────────────────────────────────────────────── #}
+      {% for item in report_data %}
+      <div class="report-section portal-table">
+
+        {# Subject header #}
+        <div class="p-3 border-bottom" style="background:#0f2044;color:#fff;">
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+            <div>
+              <span class="badge bg-warning text-dark me-2 fw-bold" style="font-size:.85rem;">{{ item.subject.code }}</span>
+              <span class="fw-bold" style="font-size:1rem;">{{ item.subject.name }}</span>
+              <div class="small mt-1" style="opacity:.85;">
+                <i class="bi bi-mortarboard me-1"></i>Year {{ item.subject.year_level }}
+                &nbsp;|&nbsp;
+                <i class="bi bi-calendar3 me-1"></i>{{ item.subject.get_semester_display }}
+                &nbsp;|&nbsp;
+                <i class="bi bi-person me-1"></i>{{ instructor.full_name }}
+                &nbsp;|&nbsp;
+                <i class="bi bi-people me-1"></i>{{ item.rows|length }} student{{ item.rows|length|pluralize }}
+              </div>
+            </div>
+            <div class="no-print">
+              <span class="badge bg-light text-dark">{{ item.subject.department.code }} — {{ item.subject.program.code }}</span>
+            </div>
+          </div>
+        </div>
+
+        {# Data table #}
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover mb-0 report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Year</th>
+                <th>Section</th>
+                {# Grade columns #}
+                <th class="grade-col" style="background:#1a3a6e!important;">Prelim</th>
+                <th class="grade-col" style="background:#1a3a6e!important;">Midterm</th>
+                <th class="grade-col" style="background:#1a3a6e!important;">Pre-Final</th>
+                <th class="grade-col" style="background:#1a3a6e!important;">Final Exam</th>
+                <th class="grade-col" style="background:#1a3a6e!important;">Final Grade</th>
+                <th class="grade-col" style="background:#1a3a6e!important;">Remarks</th>
+                {# Attendance columns #}
+                <th class="att-col" style="background:#14532d!important;">Present</th>
+                <th class="att-col" style="background:#14532d!important;">Late</th>
+                <th class="att-col" style="background:#14532d!important;">Absent</th>
+                <th class="att-col" style="background:#14532d!important;">Excused</th>
+                <th class="att-col" style="background:#14532d!important;">Att.%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in item.rows %}
+              <tr>
+                <td class="text-muted">{{ forloop.counter }}</td>
+                <td class="fw-semibold">{{ row.enrollment.student.student_id }}</td>
+                <td>{{ row.enrollment.student.full_name }}</td>
+                <td class="text-center">{{ row.enrollment.student.year_level }}</td>
+                <td class="text-center">
+                  {% if row.enrollment.section %}{{ row.enrollment.section.name }}{% else %}<span class="text-muted">—</span>{% endif %}
+                </td>
+
+                {# Grades #}
+                {% if row.grade %}
+                <td class="grade-col">{{ row.grade.prelim|default:"—" }}</td>
+                <td class="grade-col">{{ row.grade.midterm|default:"—" }}</td>
+                <td class="grade-col">{{ row.grade.pre_final|default:"—" }}</td>
+                <td class="grade-col">{{ row.grade.final|default:"—" }}</td>
+                <td class="grade-col fw-bold">
+                  {% if row.grade.final_grade %}
+                  <span class="{% if row.grade.final_grade <= 3 %}text-success{% else %}text-danger{% endif %}">
+                    {{ row.grade.final_grade }}
+                  </span>
+                  {% else %}—{% endif %}
+                </td>
+                <td class="grade-col">
+                  <span class="badge rate-badge
+                    {% if row.grade.remarks == 'passed' %}bg-success
+                    {% elif row.grade.remarks == 'failed' %}bg-danger
+                    {% elif row.grade.remarks == 'incomplete' %}bg-warning text-dark
+                    {% elif row.grade.remarks == 'dropped' %}bg-secondary
+                    {% else %}bg-light text-muted{% endif %}">
+                    {% if row.grade.remarks %}{{ row.grade.get_remarks_display }}{% else %}—{% endif %}
+                  </span>
+                </td>
+                {% else %}
+                <td class="grade-col text-muted">—</td>
+                <td class="grade-col text-muted">—</td>
+                <td class="grade-col text-muted">—</td>
+                <td class="grade-col text-muted">—</td>
+                <td class="grade-col text-muted">—</td>
+                <td class="grade-col"><span class="badge bg-light text-muted border rate-badge">No Grade</span></td>
+                {% endif %}
+
+                {# Attendance #}
+                <td class="att-col text-success fw-semibold">{{ row.att.present }}</td>
+                <td class="att-col text-warning fw-semibold">{{ row.att.late }}</td>
+                <td class="att-col text-danger fw-semibold">{{ row.att.absent }}</td>
+                <td class="att-col text-secondary">{{ row.att.excused }}</td>
+                <td class="att-col fw-bold">
+                  {% if row.att.total > 0 %}
+                  <span class="badge rate-badge
+                    {% if row.att.rate >= 80 %}bg-success
+                    {% elif row.att.rate >= 60 %}bg-warning text-dark
+                    {% else %}bg-danger{% endif %}">
+                    {{ row.att.rate }}%
+                  </span>
+                  {% else %}
+                  <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+            {# Summary footer row #}
+            <tfoot>
+              <tr style="background:#f0f4ff;font-weight:600;font-size:.78rem;">
+                <td colspan="5" class="text-end text-muted pe-2">
+                  Totals ({{ item.rows|length }} student{{ item.rows|length|pluralize }})
+                </td>
+                <td class="grade-col text-center text-muted" colspan="4">—</td>
+                <td class="grade-col text-center">
+                  <span class="badge bg-success rate-badge">{{ item.totals.graded }} graded</span>
+                  {% if item.totals.no_grade %}
+                  <span class="badge bg-secondary rate-badge">{{ item.totals.no_grade }} missing</span>
+                  {% endif %}
+                </td>
+                <td class="grade-col text-center text-muted">—</td>
+                <td class="att-col text-center fw-bold text-success">{{ item.totals.present }}</td>
+                <td class="att-col text-center fw-bold text-warning">{{ item.totals.late }}</td>
+                <td class="att-col text-center fw-bold text-danger">{{ item.totals.absent }}</td>
+                <td class="att-col text-center fw-bold text-secondary">{{ item.totals.excused }}</td>
+                <td class="att-col text-center">
+                  <span class="badge rate-badge
+                    {% if item.totals.avg_rate >= 80 %}bg-success
+                    {% elif item.totals.avg_rate >= 60 %}bg-warning text-dark
+                    {% else %}bg-danger{% endif %}">
+                    avg {{ item.totals.avg_rate }}%
+                  </span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        {# Legend (screen only) #}
+        <div class="p-2 d-flex flex-wrap gap-3 no-print" style="background:var(--accent-gold-light);border-top:2px solid var(--accent-gold);font-size:.75rem;">
+          <span><span class="badge bg-success me-1">■</span>Grade ≤ 3.0 = Passed</span>
+          <span><span class="badge bg-danger me-1">■</span>Grade &gt; 3.0 = Failed</span>
+          <span style="color:#555;">Att. % = (Present + Late) ÷ Total Sessions × 100</span>
+          <span style="color:#14532d;font-weight:600;">■ Green cols = Grades</span>
+          <span style="color:#0f2044;font-weight:600;">■ Dark cols = Attendance</span>
+        </div>
+      </div>
+      {% empty %}
+
+      {# Empty state #}
+      <div class="portal-table p-5 text-center text-muted no-print">
+        <i class="bi bi-file-earmark-bar-graph fs-1 d-block mb-3" style="opacity:.3;"></i>
+        <div class="fw-bold mb-1">No report data found.</div>
+        <div class="small">
+          {% if all_subjects %}
+          Adjust the filters above and click <strong>Go</strong> to generate a report,
+          or clear all filters to show data for all your subjects.
+          {% else %}
+          You have no subjects assigned yet. Ask the admin to assign subjects to your account.
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+      {# Bottom print button (screen only) #}
+      {% if report_data %}
+      <div class="d-flex justify-content-end mt-4 no-print">
+        <button class="btn btn-primary fw-bold px-4" onclick="window.print()">
+          <i class="bi bi-printer me-2"></i>Print / Save as PDF
+        </button>
+      </div>
+      {% endif %}
+
+    </div>{# end page-body #}
+  </div>{# end main-content #}
+</div>{# end portal-layout #}
+{% endblock %}

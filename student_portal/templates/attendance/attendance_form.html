@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_instructor.html' %}
+  <div class="main-content">
+    <div class="topbar"><span class="topbar-title">{{ title }}</span><a href="{% url 'instructor_attendance' %}" class="btn btn-sm btn-outline-primary">Back</a></div>
+    <div class="page-body fade-in">
+      <div class="form-card" style="max-width:600px">
+        <form method="post">{% csrf_token %}
+          {% for field in form %}<div class="mb-3"><label class="form-label fw-semibold">{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
+          <button type="submit" class="btn btn-primary fw-bold">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

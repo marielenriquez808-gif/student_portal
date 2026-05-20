@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Subject{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">{{ action }} Subject</span>
+      </div>
+      <a href="{% url 'admin_subjects' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to Subjects
+      </a>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+      <div class="form-card" style="max-width:700px">
+        <form method="post">{% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Department <span class="text-danger">*</span></label>
+              {{ form.department }}
+              {% if form.department.errors %}<div class="text-danger small">{{ form.department.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Program / Course <span class="text-danger">*</span></label>
+              {{ form.program }}
+              {% if form.program.errors %}<div class="text-danger small">{{ form.program.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Year Level <span class="text-danger">*</span></label>
+              {{ form.year_level }}
+              {% if form.year_level.errors %}<div class="text-danger small">{{ form.year_level.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Semester <span class="text-danger">*</span></label>
+              {{ form.semester }}
+              {% if form.semester.errors %}<div class="text-danger small">{{ form.semester.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Units <span class="text-danger">*</span></label>
+              {{ form.units }}
+              {% if form.units.errors %}<div class="text-danger small">{{ form.units.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Subject Code <span class="text-danger">*</span></label>
+              {{ form.code }}
+              {% if form.code.errors %}<div class="text-danger small">{{ form.code.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-semibold small">Subject Name <span class="text-danger">*</span></label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Description (optional)</label>
+              {{ form.description }}
+            </div>
+            <div class="col-12 d-flex gap-2 mt-2">
+              <button type="submit" class="btn btn-primary fw-bold px-4">
+                <i class="bi bi-save me-1"></i>{{ action }} Subject
+              </button>
+              <a href="{% url 'admin_subjects' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var deptSelect = document.getElementById('id_department');
+  var progSelect = document.getElementById('id_program');
+  var ajaxUrl = '{% url "get_programs" %}';
+
+  function loadPrograms(deptId, selectedProgId) {
+    if (!deptId) {
+      progSelect.innerHTML = '<option value="">---------</option>';
+      progSelect.disabled = true;
+      return;
+    }
+    fetch(ajaxUrl + '?department_id=' + deptId)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        progSelect.innerHTML = '<option value="">Select Program/Course</option>';
+        data.programs.forEach(function (p) {
+          var opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.name;
+          if (selectedProgId && String(p.id) === String(selectedProgId)) opt.selected = true;
+          progSelect.appendChild(opt);
+        });
+        progSelect.disabled = false;
+      });
+  }
+
+  deptSelect.addEventListener('change', function () {
+    loadPrograms(this.value, null);
+  });
+
+  // On load: if department already set, load matching programs and restore selection
+  var initialDept = deptSelect.value;
+  var initialProg = '{{ form.program.value|default:"" }}';
+  if (initialDept) {
+    loadPrograms(initialDept, initialProg);
+  } else {
+    progSelect.disabled = true;
+  }
+})();
+</script>
+{% endblock %}

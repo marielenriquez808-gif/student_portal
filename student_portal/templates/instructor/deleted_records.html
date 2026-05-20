@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Deleted Records – Instructor{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_instructor.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Deleted Records</span>
+      </div>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+
+      <!-- Deleted Grades -->
+      <div class="portal-table mb-4">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="bi bi-journal-x me-2 text-primary"></i>Deleted Grades</span>
+          <span class="badge bg-danger">{{ deleted_grades|length }}</span>
+        </div>
+        {% if deleted_grades %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Final Grade</th>
+                <th>Remarks</th>
+                <th>Deleted At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for grade in deleted_grades %}
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ grade.enrollment.student.full_name }}</div>
+                  <small class="text-muted">{{ grade.enrollment.student.student_id }}</small>
+                </td>
+                <td><span class="badge bg-primary">{{ grade.subject.code }}</span> {{ grade.subject.name }}</td>
+                <td>{{ grade.final_grade|default:"—" }}</td>
+                <td>
+                  {% if grade.remarks %}
+                    <span class="badge {% if grade.remarks == 'passed' %}bg-success{% else %}bg-danger{% endif %}">
+                      {{ grade.get_remarks_display }}
+                    </span>
+                  {% else %}—{% endif %}
+                </td>
+                <td class="text-muted small">{{ grade.deleted_at|date:"M d, Y H:i" }}</td>
+                <td>
+                  <form method="post" action="{% url 'instructor_restore_grade' grade.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-success" type="submit">
+                      <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-check-circle fs-3 d-block mb-2"></i>No deleted grades.
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Deleted Attendance -->
+      <div class="portal-table">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+          <span class="fw-bold"><i class="bi bi-calendar-x me-2 text-primary"></i>Deleted Attendance Records</span>
+          <span class="badge bg-danger">{{ deleted_attendance|length }}</span>
+        </div>
+        {% if deleted_attendance %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Deleted At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rec in deleted_attendance %}
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ rec.enrollment.student.full_name }}</div>
+                  <small class="text-muted">{{ rec.enrollment.student.student_id }}</small>
+                </td>
+                <td><span class="badge bg-primary">{{ rec.subject.code }}</span></td>
+                <td>{{ rec.date|date:"M d, Y" }}</td>
+                <td>
+                  <span class="badge {% if rec.status == 'present' %}bg-success{% elif rec.status == 'absent' %}bg-danger{% elif rec.status == 'late' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ rec.get_status_display }}
+                  </span>
+                </td>
+                <td class="text-muted small">{{ rec.deleted_at|date:"M d, Y H:i" }}</td>
+                <td>
+                  <form method="post" action="{% url 'instructor_restore_attendance' rec.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-success" type="submit">
+                      <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-check-circle fs-3 d-block mb-2"></i>No deleted attendance records.
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

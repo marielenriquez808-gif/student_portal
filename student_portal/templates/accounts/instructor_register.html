@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Instructor Registration{% endblock %}
+{% block body %}
+
+<div class="auth-page py-4">
+  <div class="auth-card fade-in" style="max-width:560px">
+    <div class="auth-logo">
+      <img src="{% static 'images/logo.png' %}" alt="Instructor Portal" class="auth-logo-img">
+      <h4>Create Instructor Account</h4>
+    </div>
+    {% include 'partials/messages.html' %}
+    <form method="post">{% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label fw-semibold">Full Name</label>{{ form.full_name }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Faculty ID</label>{{ form.faculty_id }}{% if form.faculty_id.errors %}<div class="text-danger small">{{ form.faculty_id.errors }}</div>{% endif %}</div>
+        <div class="col-12"><label class="form-label fw-semibold">Email</label>{{ form.email }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Department</label>{{ form.department }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Program</label>{{ form.program }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Year Level Handles</label>{{ form.year_level_handles }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Position/Rank</label>{{ form.position }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Password</label>{{ form.password }}</div>
+        <div class="col-md-6"><label class="form-label fw-semibold">Confirm Password</label>{{ form.confirm_password }}</div>
+        <div class="col-12"><button type="submit" class="btn btn-primary w-100 fw-bold py-2">Create Account</button></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function () {
+  var deptSelect = document.getElementById('id_department');
+  var progSelect = document.getElementById('id_program');
+  var ajaxUrl = '{% url "get_programs" %}';
+
+  function setPrograms(programs, selectedId) {
+    progSelect.innerHTML = '<option value="">Select Program/Course</option>';
+    programs.forEach(function (p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      if (selectedId && String(p.id) === String(selectedId)) opt.selected = true;
+      progSelect.appendChild(opt);
+    });
+    progSelect.disabled = programs.length === 0;
+  }
+
+  function loadPrograms(deptId, selectedProgId) {
+    if (!deptId) {
+      setPrograms([], null);
+      return;
+    }
+    fetch(ajaxUrl + '?department_id=' + deptId)
+      .then(function (r) { return r.json(); })
+      .then(function (data) { setPrograms(data.programs, selectedProgId); })
+      .catch(function () { setPrograms([], null); });
+  }
+
+  var initialDept = deptSelect.value;
+  var initialProg = '{{ form.program.value|default:"" }}';
+  if (initialDept) {
+    loadPrograms(initialDept, initialProg);
+  } else {
+    progSelect.disabled = true;
+  }
+
+  deptSelect.addEventListener('change', function () {
+    loadPrograms(this.value, null);
+  });
+})();
+</script>
+{% endblock %}

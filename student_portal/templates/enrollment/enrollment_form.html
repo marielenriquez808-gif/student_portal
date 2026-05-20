@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% block title %}Enrollment Form{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_student.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Enrollment Form</span>
+      </div>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+      <form method="post" id="enrollmentForm">{% csrf_token %}
+
+        {# A. Personal Information #}
+        <div class="form-card mb-4">
+          <div class="section-title"><i class="bi bi-person me-2"></i>A. Personal Information</div>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label fw-semibold small">Civil Status</label>{{ enroll_form.civil_status }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Gender</label>{{ enroll_form.gender }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Nickname</label>{{ enroll_form.nickname }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Ethnicity</label>{{ enroll_form.ethnicity }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Date of Birth</label>{{ enroll_form.date_of_birth }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Age</label>{{ enroll_form.age }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Place of Birth</label>{{ enroll_form.place_of_birth }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">Contact Number</label>{{ enroll_form.contact_number }}</div>
+            <div class="col-md-4"><label class="form-label fw-semibold small">ZIP Code</label>{{ enroll_form.zip_code }}</div>
+            <div class="col-12"><label class="form-label fw-semibold small">Address</label>{{ enroll_form.address }}</div>
+          </div>
+        </div>
+
+        {# B. Educational Background #}
+        <div class="form-card mb-4">
+          <div class="section-title"><i class="bi bi-book me-2"></i>B. Educational Background</div>
+          <div class="row g-3">
+            <div class="col-12"><h6 class="fw-700 text-primary">Primary School</h6></div>
+            <div class="col-md-5"><label class="form-label fw-semibold small">School Name</label>{{ edu_form.primary_school }}</div>
+            <div class="col-md-5"><label class="form-label fw-semibold small">Address</label>{{ edu_form.primary_address }}</div>
+            <div class="col-md-2"><label class="form-label fw-semibold small">Year Graduated</label>{{ edu_form.primary_year_graduated }}</div>
+            <div class="col-12"><h6 class="fw-700 text-primary">Secondary School</h6></div>
+            <div class="col-md-5"><label class="form-label fw-semibold small">School Name</label>{{ edu_form.secondary_school }}</div>
+            <div class="col-md-5"><label class="form-label fw-semibold small">Address</label>{{ edu_form.secondary_address }}</div>
+            <div class="col-md-2"><label class="form-label fw-semibold small">Year Graduated</label>{{ edu_form.secondary_year_graduated }}</div>
+            <div class="col-12"><h6 class="fw-700 text-primary">Tertiary School</h6></div>
+            <div class="col-md-5"><label class="form-label fw-semibold small">School Name</label>{{ edu_form.tertiary_school }}</div>
+            <div class="col-md-5"><label class="form-label fw-semibold small">Address</label>{{ edu_form.tertiary_address }}</div>
+            <div class="col-md-2"><label class="form-label fw-semibold small">Year Graduated</label>{{ edu_form.tertiary_year_graduated }}</div>
+          </div>
+        </div>
+
+        {# C. Guardian Information #}
+        <div class="form-card mb-4">
+          <div class="section-title"><i class="bi bi-people me-2"></i>C. Guardian Information</div>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label fw-semibold small">Mother Name</label>{{ enroll_form.mother_name }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Mother Occupation</label>{{ enroll_form.mother_occupation }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Father Name</label>{{ enroll_form.father_name }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Father Occupation</label>{{ enroll_form.father_occupation }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Other Guardian</label>{{ enroll_form.guardian_name }}</div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Relationship</label>{{ enroll_form.guardian_relationship }}</div>
+          </div>
+        </div>
+
+        {# D. Subject Selection #}
+        <div class="form-card mb-4">
+          <div class="section-title"><i class="bi bi-journal-check me-2"></i>D. Subject Selection</div>
+
+          {# Student info banner #}
+          <div class="alert alert-info small mb-3 py-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Subjects are filtered for: <strong>{{ profile.department }}</strong> &mdash;
+            <strong>{{ profile.program }}</strong> &mdash;
+            <strong>Year {{ profile.year_level }}</strong>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">School Year</label>
+              {{ enroll_form.school_year }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Semester <span class="text-danger">*</span></label>
+              {{ enroll_form.semester }}
+              {% if enroll_form.semester.errors %}
+              <div class="text-danger small">{{ enroll_form.semester.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          {# Placeholder shown before semester selected #}
+          <div id="subjectPlaceholder" class="text-center text-muted py-4 border rounded" style="background:#f8faff;">
+            <i class="bi bi-arrow-up-circle fs-4 d-block mb-2 text-primary"></i>
+            Please select a <strong>Semester</strong> above to view available subjects.
+          </div>
+
+          {# Loading spinner #}
+          <div id="subjectLoading" class="text-center py-4" style="display:none;">
+            <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+            Loading subjects&hellip;
+          </div>
+
+          {# Subject table injected here by JS #}
+          <div id="subjectTableWrapper" style="display:none;"></div>
+
+          {# Errors from Django form validation #}
+          {% if enroll_form.subjects.errors %}
+          <div class="text-danger small mt-2">{{ enroll_form.subjects.errors }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary fw-bold px-5 py-2">
+          <i class="bi bi-send me-2"></i>Submit Enrollment
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var semesterSelect = document.getElementById('id_semester');
+  var placeholder    = document.getElementById('subjectPlaceholder');
+  var loading        = document.getElementById('subjectLoading');
+  var tableWrapper   = document.getElementById('subjectTableWrapper');
+
+  var deptId      = '{{ profile.department.id }}';
+  var programId   = '{{ profile.program.id }}';
+  var yearLevel   = '{{ profile.year_level }}';
+  var ajaxUrl     = '{% url "get_subjects_ajax" %}';
+
+  var initialSemester   = '{{ current_semester }}';
+  var selectedIds       = [{{ selected_subject_ids|join:"," }}];
+
+  var SEM_LABELS = {'1st': '1st Semester', '2nd': '2nd Semester', 'summer': 'Summer'};
+
+  function loadSubjects(semester) {
+    if (!semester) {
+      placeholder.style.display = '';
+      loading.style.display = 'none';
+      tableWrapper.style.display = 'none';
+      tableWrapper.innerHTML = '';
+      return;
+    }
+
+    placeholder.style.display = 'none';
+    tableWrapper.style.display = 'none';
+    loading.style.display = '';
+
+    var url = ajaxUrl
+      + '?department=' + deptId
+      + '&program=' + programId
+      + '&year_level=' + yearLevel
+      + '&semester=' + semester;
+
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        loading.style.display = 'none';
+        tableWrapper.style.display = '';
+
+        if (!data.subjects || data.subjects.length === 0) {
+          tableWrapper.innerHTML =
+            '<div class="text-muted text-center py-4 border rounded">' +
+            '<i class="bi bi-inbox fs-4 d-block mb-2"></i>No subjects found for this semester.</div>';
+          return;
+        }
+
+        var totalUnits = data.subjects.reduce(function (s, x) { return s + x.units; }, 0);
+        var rows = '';
+        data.subjects.forEach(function (s) {
+          var isChecked = (selectedIds.length === 0 || selectedIds.indexOf(s.id) !== -1)
+            ? 'checked' : '';
+          rows +=
+            '<tr>' +
+            '<td class="text-center"><input type="checkbox" class="subj-chk form-check-input" ' +
+              'name="subjects" value="' + s.id + '" ' + isChecked + '></td>' +
+            '<td><span class="badge bg-primary">' + s.code + '</span></td>' +
+            '<td>' + s.name + '</td>' +
+            '<td class="text-center">' + s.units + '</td>' +
+            '<td>' + (SEM_LABELS[s.semester] || s.semester) + '</td>' +
+            '</tr>';
+        });
+
+        tableWrapper.innerHTML =
+          '<div class="table-responsive">' +
+          '<table class="table table-bordered table-hover align-middle mb-0">' +
+          '<thead class="table-light">' +
+            '<tr>' +
+            '<th class="text-center" style="width:50px">' +
+              '<input type="checkbox" id="checkAll" class="form-check-input" checked ' +
+              'title="Select / deselect all"></th>' +
+            '<th>Subject Code</th>' +
+            '<th>Subject Name</th>' +
+            '<th class="text-center">Units</th>' +
+            '<th>Semester</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' + rows + '</tbody>' +
+          '<tfoot>' +
+            '<tr class="table-light fw-semibold">' +
+            '<td colspan="3" class="text-end">Total Units:</td>' +
+            '<td class="text-center">' + totalUnits + '</td>' +
+            '<td></td>' +
+            '</tr>' +
+          '</tfoot>' +
+          '</table></div>';
+
+        // Sync "select all" checkbox
+        var checkAll = document.getElementById('checkAll');
+        checkAll.addEventListener('change', function () {
+          document.querySelectorAll('.subj-chk').forEach(function (cb) {
+            cb.checked = checkAll.checked;
+          });
+        });
+
+        // Keep "select all" in sync when individual boxes change
+        tableWrapper.addEventListener('change', function (e) {
+          if (e.target.classList.contains('subj-chk')) {
+            var all = document.querySelectorAll('.subj-chk');
+            var checked = document.querySelectorAll('.subj-chk:checked');
+            checkAll.checked = (all.length === checked.length);
+            checkAll.indeterminate = (checked.length > 0 && checked.length < all.length);
+          }
+        });
+      })
+      .catch(function () {
+        loading.style.display = 'none';
+        tableWrapper.style.display = '';
+        tableWrapper.innerHTML =
+          '<div class="alert alert-danger">Error loading subjects. Please try again.</div>';
+      });
+  }
+
+  // Semester dropdown change
+  semesterSelect.addEventListener('change', function () {
+    selectedIds = []; // fresh selection when semester changes
+    loadSubjects(this.value);
+  });
+
+  // Restore state on page load (form re-render after error, or editing existing)
+  if (initialSemester) {
+    semesterSelect.value = initialSemester;
+    loadSubjects(initialSemester);
+  }
+})();
+</script>
+{% endblock %}

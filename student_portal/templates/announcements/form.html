@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% if user.role == 'instructor' %}{% include 'partials/sidebar_instructor.html' %}
+  {% else %}{% include 'partials/sidebar_admin.html' %}{% endif %}
+  <div class="main-content">
+    <div class="topbar"><span class="topbar-title">{{ title }}</span><a href="{% url 'announcement_list' %}" class="btn btn-sm btn-outline-primary">Back</a></div>
+    <div class="page-body fade-in">
+      <div class="form-card" style="max-width:640px">
+        <form method="post">{% csrf_token %}
+          {% for field in form %}<div class="mb-3"><label class="form-label fw-semibold">{{ field.label }}</label>{{ field }}</div>{% endfor %}
+          <button type="submit" class="btn btn-primary fw-bold">Save Announcement</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

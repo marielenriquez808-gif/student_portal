@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_student.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Dashboard</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small">{{ profile.full_name }}</span>
+        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px">{{ profile.full_name|first }}</div>
+      </div>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+      <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card"><div class="stat-icon blue"><i class="bi bi-award"></i></div><div><div class="stat-value">{{ gwa }}</div><div class="stat-label">General Weighted Average</div></div></div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card"><div class="stat-icon green"><i class="bi bi-book"></i></div><div><div class="stat-value">{{ subjects_count }}</div><div class="stat-label">Enrolled Subjects</div></div></div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card"><div class="stat-icon yellow"><i class="bi bi-clipboard2-check"></i></div><div><div class="stat-value">{{ att_rate }}%</div><div class="stat-label">Attendance Rate</div></div></div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card"><div class="stat-icon purple"><i class="bi bi-layers"></i></div><div><div class="stat-value">Section {{ enrollment.section.name|default:"—" }}</div><div class="stat-label">Assigned Section</div></div></div>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="portal-table p-3">
+            <h6 class="fw-800 mb-3"><i class="bi bi-calendar3 me-2 text-primary"></i>Today's Schedule</h6>
+            {% if schedules %}
+            <table class="table table-hover"><thead><tr><th>Subject</th><th>Time</th><th>Room</th></tr></thead>
+            <tbody>{% for s in schedules %}<tr><td><div class="fw-semibold">{{ s.subject.code }}</div><small class="text-muted">{{ s.subject.name }}</small></td><td>{{ s.time_start|time:"g:i A" }} - {{ s.time_end|time:"g:i A" }}</td><td>{{ s.room|default:"TBA" }}</td></tr>{% endfor %}</tbody></table>
+            {% else %}<p class="text-muted text-center py-3">No classes today.</p>{% endif %}
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="portal-table p-3">
+            <h6 class="fw-800 mb-3"><i class="bi bi-megaphone me-2 text-primary"></i>Announcements</h6>
+            {% for ann in announcements %}
+            <div class="border-start border-primary border-3 ps-3 mb-3">
+              <div class="fw-semibold small">{{ ann.title }}</div>
+              <div class="text-muted" style="font-size:.8rem">{{ ann.content|truncatewords:20 }}</div>
+              <div class="text-muted" style="font-size:.75rem">{{ ann.created_at|date:"M d, Y" }}</div>
+            </div>
+            {% empty %}<p class="text-muted text-center py-3">No announcements.</p>{% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

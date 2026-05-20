@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Enrollment Detail{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar"><span class="topbar-title">Enrollment Detail</span><a href="{% url 'admin_students' %}" class="btn btn-sm btn-outline-primary">Back</a></div>
+    <div class="page-body fade-in">
+      <div class="form-card">
+        <h5 class="fw-800 mb-4">{{ enrollment.student.full_name }} — {{ enrollment.student.student_id }}</h5>
+        <div class="row g-3">
+          <div class="col-md-6"><b>Department:</b> {{ enrollment.student.department }}</div>
+          <div class="col-md-6"><b>Program:</b> {{ enrollment.student.program }}</div>
+          <div class="col-md-6"><b>Year Level:</b> {{ enrollment.student.year_level }}</div>
+          <div class="col-md-6"><b>Status:</b> <span class="badge-{{ enrollment.status }}">{{ enrollment.get_status_display }}</span></div>
+          <div class="col-md-6"><b>Civil Status:</b> {{ enrollment.civil_status }}</div>
+          <div class="col-md-6"><b>Gender:</b> {{ enrollment.gender }}</div>
+          <div class="col-md-6"><b>Contact:</b> {{ enrollment.contact_number }}</div>
+          <div class="col-md-6"><b>Date of Birth:</b> {{ enrollment.date_of_birth }}</div>
+          <div class="col-12"><b>Address:</b> {{ enrollment.address }}</div>
+          <div class="col-md-4"><b>Mother:</b> {{ enrollment.mother_name }} ({{ enrollment.mother_occupation }})</div>
+          <div class="col-md-4"><b>Father:</b> {{ enrollment.father_name }} ({{ enrollment.father_occupation }})</div>
+          <div class="col-md-4"><b>Guardian:</b> {{ enrollment.guardian_name }} ({{ enrollment.guardian_relationship }})</div>
+          <div class="col-12"><b>Enrolled Subjects:</b>
+            <ul>{% for s in enrollment.subjects.all %}<li>{{ s.code }} - {{ s.name }} ({{ s.units }} units)</li>{% endfor %}</ul>
+          </div>
+        </div>
+        {% if enrollment.status == 'pending' %}
+        <div class="mt-4 d-flex gap-2">
+          <form method="post" action="{% url 'approve_enrollment' enrollment.pk %}">{% csrf_token %}<button class="btn btn-success fw-bold">Approve Enrollment</button></form>
+          <form method="post" action="{% url 'reject_enrollment' enrollment.pk %}">{% csrf_token %}<input type="hidden" name="remarks" value="Rejected by admin"><button class="btn btn-danger fw-bold">Reject Enrollment</button></form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

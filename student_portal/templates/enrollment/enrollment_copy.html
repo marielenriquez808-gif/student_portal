@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}My Enrollment Form{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_student.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-title">My Enrollment Form</span>
+      <button onclick="window.print()" class="btn btn-sm btn-outline-primary no-print"><i class="bi bi-printer me-1"></i>Print</button>
+    </div>
+    <div class="page-body fade-in">
+      <div class="form-card">
+        <div class="text-center mb-4"><h4 class="fw-800">ENROLLMENT FORM</h4><p class="text-muted">{{ enrollment.school_year }} | {{ enrollment.semester }} Semester</p></div>
+        <div class="row g-3">
+          <div class="col-md-6"><b>Name:</b> {{ profile.full_name }}</div>
+          <div class="col-md-6"><b>Student ID:</b> {{ profile.student_id }}</div>
+          <div class="col-md-6"><b>Department:</b> {{ profile.department }}</div>
+          <div class="col-md-6"><b>Program:</b> {{ profile.program }}</div>
+          <div class="col-md-6"><b>Year Level:</b> {{ profile.get_year_level_display }}</div>
+          <div class="col-md-6"><b>Section:</b> {{ enrollment.section.name|default:"Pending" }}</div>
+          <div class="col-md-6"><b>Status:</b> <span class="badge-{{ enrollment.status }}">{{ enrollment.get_status_display }}</span></div>
+          <div class="col-12 mt-3"><h6 class="fw-800">Enrolled Subjects</h6>
+            <table class="table table-bordered table-sm mt-2">
+              <thead class="table-light"><tr><th>Code</th><th>Subject Name</th><th>Units</th></tr></thead>
+              <tbody>{% for s in enrollment.subjects.all %}<tr><td>{{ s.code }}</td><td>{{ s.name }}</td><td>{{ s.units }}</td></tr>{% endfor %}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

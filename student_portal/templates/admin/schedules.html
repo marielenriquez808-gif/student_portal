@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Schedule Management{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Schedule Management</span>
+      </div>
+      <a href="{% url 'admin_schedule_create' %}" class="btn btn-primary btn-sm fw-semibold">
+        <i class="bi bi-plus-circle me-1"></i>Add Schedule
+      </a>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+
+      {# Filters #}
+      <div class="form-card mb-4">
+        <form method="get" class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold small">Instructor</label>
+            <select name="instructor" class="form-control">
+              <option value="">All Instructors</option>
+              {% for inst in instructors %}
+              <option value="{{ inst.id }}" {% if request.GET.instructor == inst.id|stringformat:'s' %}selected{% endif %}>
+                {{ inst.full_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Day</label>
+            <select name="day" class="form-control">
+              <option value="">All Days</option>
+              <option value="monday" {% if request.GET.day == 'monday' %}selected{% endif %}>Monday</option>
+              <option value="tuesday" {% if request.GET.day == 'tuesday' %}selected{% endif %}>Tuesday</option>
+              <option value="wednesday" {% if request.GET.day == 'wednesday' %}selected{% endif %}>Wednesday</option>
+              <option value="thursday" {% if request.GET.day == 'thursday' %}selected{% endif %}>Thursday</option>
+              <option value="friday" {% if request.GET.day == 'friday' %}selected{% endif %}>Friday</option>
+              <option value="saturday" {% if request.GET.day == 'saturday' %}selected{% endif %}>Saturday</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold small">Semester</label>
+            <select name="semester" class="form-control">
+              <option value="">All Semesters</option>
+              <option value="1st" {% if request.GET.semester == '1st' %}selected{% endif %}>1st Semester</option>
+              <option value="2nd" {% if request.GET.semester == '2nd' %}selected{% endif %}>2nd Semester</option>
+              <option value="summer" {% if request.GET.semester == 'summer' %}selected{% endif %}>Summer</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+            <a href="{% url 'admin_schedules' %}" class="btn btn-outline-secondary w-100">Clear</a>
+          </div>
+        </form>
+      </div>
+
+      {# Schedule table #}
+      <div class="portal-table">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Section</th>
+              <th>Instructor</th>
+              <th>Day</th>
+              <th>Time</th>
+              <th>Room</th>
+              <th>Semester</th>
+              <th>School Year</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sched in schedules %}
+            <tr>
+              <td>
+                <span class="badge bg-primary me-1">{{ sched.subject.code }}</span>
+                <span class="small">{{ sched.subject.name }}</span>
+              </td>
+              <td>{% if sched.section %}{{ sched.section.name }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+              <td>{{ sched.instructor.full_name }}</td>
+              <td>{{ sched.day }}</td>
+              <td class="text-nowrap">{{ sched.time_start|time:"g:i A" }} – {{ sched.time_end|time:"g:i A" }}</td>
+              <td>{{ sched.room|default:"—" }}</td>
+              <td>
+                {% if sched.semester == '1st' %}1st Semester
+                {% elif sched.semester == '2nd' %}2nd Semester
+                {% else %}Summer{% endif %}
+              </td>
+              <td>{{ sched.school_year|default:"—" }}</td>
+              <td class="text-center">
+                <a href="{% url 'admin_schedule_edit' sched.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form method="post" action="{% url 'admin_schedule_delete' sched.pk %}" class="d-inline"
+                      onsubmit="return confirm('Delete this schedule?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center text-muted py-4">No schedules found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% include 'partials/pagination.html' %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

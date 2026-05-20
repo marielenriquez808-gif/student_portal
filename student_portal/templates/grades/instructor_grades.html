@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Grade Management{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_instructor.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Grade Management</span>
+      </div>
+      <span class="text-muted small">{{ instructor.full_name }}</span>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+
+      {% for item in subject_data %}
+      <div class="portal-table mb-4">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="background:#f8faff;">
+          <div>
+            <span class="badge bg-primary me-2">{{ item.subject.code }}</span>
+            <span class="fw-bold" style="color:#0f2044;">{{ item.subject.name }}</span>
+            <span class="text-muted small ms-2">— Year {{ item.subject.year_level }} | {{ item.subject.get_semester_display }}</span>
+          </div>
+          <span class="badge bg-secondary">{{ item.rows|length }} student{{ item.rows|length|pluralize }}</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th class="text-center">Prelim</th>
+                <th class="text-center">Midterm</th>
+                <th class="text-center">Pre-Final</th>
+                <th class="text-center">Final</th>
+                <th class="text-center">Grade</th>
+                <th class="text-center">Remarks</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in item.rows %}
+              <tr>
+                <td class="fw-semibold">{{ row.enrollment.student.student_id }}</td>
+                <td>{{ row.enrollment.student.full_name }}</td>
+                {% if row.grade %}
+                <td class="text-center">{{ row.grade.prelim|default:"—" }}</td>
+                <td class="text-center">{{ row.grade.midterm|default:"—" }}</td>
+                <td class="text-center">{{ row.grade.pre_final|default:"—" }}</td>
+                <td class="text-center">{{ row.grade.final|default:"—" }}</td>
+                <td class="text-center fw-bold">{{ row.grade.final_grade|default:"—" }}</td>
+                <td class="text-center">
+                  <span class="badge {% if row.grade.remarks == 'passed' %}bg-success{% elif row.grade.remarks == 'failed' %}bg-danger{% elif row.grade.remarks == 'incomplete' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ row.grade.get_remarks_display|default:"—" }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <a href="{% url 'grade_update' row.grade.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                  <form method="post" action="{% url 'grade_delete' row.grade.pk %}" class="d-inline"
+                        onsubmit="return confirm('Delete grade for {{ row.enrollment.student.full_name }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                  </form>
+                </td>
+                {% else %}
+                <td class="text-center text-muted">—</td>
+                <td class="text-center text-muted">—</td>
+                <td class="text-center text-muted">—</td>
+                <td class="text-center text-muted">—</td>
+                <td class="text-center text-muted">—</td>
+                <td class="text-center"><span class="badge bg-light text-muted border">No Grade</span></td>
+                <td class="text-center">
+                  <a href="{% url 'grade_add' item.subject.pk row.enrollment.pk %}" class="btn btn-sm btn-success">
+                    <i class="bi bi-plus-circle me-1"></i>Add Grade
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+              {% empty %}
+              <tr><td colspan="9" class="text-center text-muted py-3">No enrolled students for this subject.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% empty %}
+      <div class="portal-table p-4 text-center text-muted">
+        <i class="bi bi-journal-x fs-3 d-block mb-2"></i>No subjects assigned yet.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Assign Subject{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_admin.html' %}
+  <div class="main-content">
+    <div class="topbar"><span class="topbar-title">Assign Subject to {{ instructor.full_name }}</span><a href="{% url 'admin_instructors' %}" class="btn btn-sm btn-outline-primary">Back</a></div>
+    <div class="page-body fade-in">
+      <div class="form-card">
+        <form method="post">{% csrf_token %}
+          <label class="form-label fw-semibold">Select Subject to Assign</label>
+          <select name="subject_id" class="form-control mb-3">
+            <option value="">Choose a subject...</option>
+            {% for s in subjects %}<option value="{{ s.pk }}">{{ s.code }} - {{ s.name }} (Yr {{ s.year_level }})</option>{% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary fw-bold">Assign Subject</button>
+        </form>
+        <hr>
+        <h6 class="fw-800">Currently Assigned Subjects</h6>
+        <ul class="list-group list-group-flush">{% for s in instructor.subjects.all %}<li class="list-group-item">{{ s.code }} - {{ s.name }}</li>{% empty %}<li class="list-group-item text-muted">None assigned</li>{% endfor %}</ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

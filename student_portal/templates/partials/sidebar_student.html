@@ -1,0 +1,17 @@
+{% load static %}
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="sidebar-logo">
+        <span>Student Portal</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{% url 'student_dashboard' %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'student_grades' %}" class="sidebar-link"><i class="bi bi-journal-check"></i> My Grades</a>
+        <a href="{% url 'enrollment_copy' %}" class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Enrollment Form</a>
+        <a href="{% url 'student_schedule' %}" class="sidebar-link"><i class="bi bi-calendar3"></i> Class Schedule</a>
+        <a href="{% url 'student_attendance' %}" class="sidebar-link"><i class="bi bi-clipboard2-check"></i> Attendance</a>
+        <a href="{% url 'announcement_list' %}" class="sidebar-link"><i class="bi bi-megaphone"></i> Announcements</a>
+        <div class="sidebar-divider"></div>
+        <a href="{% url 'logout' %}" class="sidebar-link text-danger"><i class="bi bi-box-arrow-left"></i> Logout</a>
+    </nav>
+</div>

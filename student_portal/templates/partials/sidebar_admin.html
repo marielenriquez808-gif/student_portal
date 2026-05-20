@@ -1,0 +1,18 @@
+{% load static %}
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="sidebar-logo">
+        <span>Admin Panel</span>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'admin_students' %}" class="sidebar-link"><i class="bi bi-people-fill"></i> Student Management</a>
+        <a href="{% url 'admin_instructors' %}" class="sidebar-link"><i class="bi bi-person-badge"></i> Instructor Management</a>
+        <a href="{% url 'admin_subjects' %}" class="sidebar-link"><i class="bi bi-book"></i> Subject Management</a>
+        <a href="{% url 'admin_schedules' %}" class="sidebar-link"><i class="bi bi-calendar3"></i> Schedule Management</a>
+        <a href="{% url 'announcement_create' %}" class="sidebar-link"><i class="bi bi-megaphone"></i> Announcements</a>
+        <a href="{% url 'admin_deleted_records' %}" class="sidebar-link"><i class="bi bi-trash3"></i> Deleted Records</a>
+        <div class="sidebar-divider"></div>
+        <a href="{% url 'logout' %}" class="sidebar-link text-danger"><i class="bi bi-box-arrow-left"></i> Logout</a>
+    </nav>
+</div>

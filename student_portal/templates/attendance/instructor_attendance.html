@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Management{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_instructor.html' %}
+  <div class="main-content">
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button>
+        <span class="topbar-title">Attendance Management</span>
+      </div>
+      <span class="text-muted small">{{ instructor.full_name }}</span>
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+
+      {# Subject Quick-Action Cards #}
+      <div class="row g-3 mb-4">
+        {% for item in subject_stats %}
+        <div class="col-md-6 col-xl-4">
+          <div class="form-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <span class="badge bg-primary">{{ item.subject.code }}</span>
+                <div class="fw-bold mt-1" style="color:#0f2044;">{{ item.subject.name }}</div>
+                <div class="text-muted small">Year {{ item.subject.year_level }} | {{ item.subject.get_semester_display }}</div>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold" style="font-size:1.2rem;color:#0f2044;">{{ item.enrolled_count }}</div>
+                <div class="stat-label">Students</div>
+              </div>
+            </div>
+            <div class="text-muted small mb-3">{{ item.records_count }} attendance record{{ item.records_count|pluralize }} saved</div>
+            <a href="{% url 'attendance_sheet' item.subject.pk %}" class="btn btn-primary btn-sm w-100 fw-semibold">
+              <i class="bi bi-clipboard2-check me-1"></i>Take Attendance
+            </a>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center text-muted py-4">No subjects assigned yet.</div>
+        {% endfor %}
+      </div>
+
+      {# Recent Attendance Records #}
+      <div class="portal-table">
+        <div class="p-3 border-bottom fw-bold" style="color:#0f2044;background:#f8faff;">
+          <i class="bi bi-clock-history me-2 text-primary"></i>Recent Attendance Records
+        </div>
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Subject</th>
+              <th class="text-center">Status</th>
+              <th>Remarks</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rec in recent_records %}
+            <tr>
+              <td>{{ rec.date|date:"M d, Y" }}</td>
+              <td class="fw-semibold">{{ rec.enrollment.student.student_id }}</td>
+              <td>{{ rec.enrollment.student.full_name }}</td>
+              <td><span class="badge bg-primary">{{ rec.subject.code }}</span></td>
+              <td class="text-center">
+                <span class="badge {% if rec.status == 'present' %}bg-success{% elif rec.status == 'absent' %}bg-danger{% elif rec.status == 'late' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                  {{ rec.get_status_display }}
+                </span>
+              </td>
+              <td class="text-muted small">{{ rec.remarks|default:"—" }}</td>
+              <td class="text-center">
+                <form method="post" action="{% url 'attendance_delete' rec.pk %}" class="d-inline"
+                      onsubmit="return confirm('Delete this record?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-4">No attendance records yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}My Grades{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_student.html' %}
+  <div class="main-content">
+    <div class="topbar"><div class="d-flex align-items-center gap-3"><button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button><span class="topbar-title">My Grades</span></div>
+      <button onclick="window.print()" class="btn btn-sm btn-outline-primary no-print"><i class="bi bi-printer me-1"></i>Print</button>
+    </div>
+    <div class="page-body fade-in">
+      <div class="stat-card mb-4" style="max-width:280px"><div class="stat-icon blue"><i class="bi bi-award"></i></div><div><div class="stat-value">{{ gwa }}</div><div class="stat-label">General Weighted Average</div></div></div>
+      <div class="portal-table">
+        <table class="table table-hover">
+          <thead><tr><th>Subject Code</th><th>Subject Name</th><th>Units</th><th>Prelim</th><th>Midterm</th><th>Pre-Final</th><th>Final</th><th>Grade</th><th>Remarks</th></tr></thead>
+          <tbody>
+          {% for g in grades %}
+          <tr><td><span class="badge bg-primary">{{ g.subject.code }}</span></td><td>{{ g.subject.name }}</td><td>{{ g.subject.units }}</td>
+          <td>{{ g.prelim|default:"—" }}</td><td>{{ g.midterm|default:"—" }}</td><td>{{ g.pre_final|default:"—" }}</td><td>{{ g.final|default:"—" }}</td>
+          <td class="fw-bold">{{ g.final_grade|default:"—" }}</td>
+          <td><span class="badge {% if g.remarks == 'passed' %}bg-success{% elif g.remarks == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">{{ g.get_remarks_display|default:"—" }}</span></td>
+          </tr>
+          {% empty %}<tr><td colspan="9" class="text-center text-muted py-4">No grades recorded yet.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Announcements{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% if user.role == 'student' %}{% include 'partials/sidebar_student.html' %}
+  {% elif user.role == 'instructor' %}{% include 'partials/sidebar_instructor.html' %}
+  {% else %}{% include 'partials/sidebar_admin.html' %}{% endif %}
+  <div class="main-content">
+    <div class="topbar"><div class="d-flex align-items-center gap-3"><button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button><span class="topbar-title">Announcements</span></div>
+      {% if user.role != 'student' %}<a href="{% url 'announcement_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus me-1"></i>New Announcement</a>{% endif %}
+    </div>
+    <div class="page-body fade-in">
+      {% include 'partials/messages.html' %}
+      {% for ann in announcements %}
+      <div class="form-card mb-3">
+        <div class="d-flex justify-content-between">
+          <h5 class="fw-800">{{ ann.title }}</h5>
+          {% if user.is_admin_user or user.role == 'admin' %}
+          <div><a href="{% url 'announcement_update' ann.pk %}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+          <form method="post" action="{% url 'announcement_delete' ann.pk %}" class="d-inline" onsubmit="return confirm('Delete?')">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Delete</button></form></div>
+          {% endif %}
+        </div>
+        <p>{{ ann.content }}</p>
+        <div class="text-muted small">Posted by {{ ann.author }} · {{ ann.created_at|date:"M d, Y g:i A" }} · For: {{ ann.get_audience_display }}</div>
+      </div>
+      {% empty %}<div class="form-card text-center text-muted py-5"><i class="bi bi-megaphone fs-1 d-block mb-3"></i>No announcements yet.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

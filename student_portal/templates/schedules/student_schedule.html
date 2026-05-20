@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load schedule_tags %}
+{% block title %}Class Schedule{% endblock %}
+{% block body %}
+<div class="portal-layout">
+  {% include 'partials/sidebar_student.html' %}
+  <div class="main-content">
+    <div class="topbar"><div class="d-flex align-items-center gap-3"><button class="btn btn-sm btn-light d-md-none" id="sidebarToggle"><i class="bi bi-list fs-5"></i></button><span class="topbar-title">Class Schedule</span></div>
+      <button onclick="window.print()" class="btn btn-sm btn-outline-primary no-print"><i class="bi bi-printer me-1"></i>Print</button>
+    </div>
+    <div class="page-body fade-in">
+      {% for day in days %}
+      {% with sched=schedule_by_day|default_if_none:"" %}
+      <div class="portal-table mb-4">
+        <div class="p-3 border-bottom fw-800 text-capitalize" style="color:#0f2044;background:#f8faff">{{ day }}</div>
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Subject</th><th>Time</th><th>Room</th><th>Instructor</th></tr></thead>
+          <tbody>
+          {% for s in schedule_by_day|dict_key:day %}
+          <tr><td><span class="badge bg-primary">{{ s.subject.code }}</span> {{ s.subject.name }}</td>
+          <td>{{ s.time_start|time:"g:i A" }} - {{ s.time_end|time:"g:i A" }}</td>
+          <td>{{ s.room|default:"TBA" }}</td><td>{{ s.instructor.full_name }}</td></tr>
+          {% empty %}<tr><td colspan="4" class="text-muted text-center">No classes</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
