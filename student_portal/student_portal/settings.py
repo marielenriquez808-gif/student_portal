@@ -95,14 +95,15 @@ BACKUP_DIR = BASE_DIR / 'backups'
 BACKUP_MAX_FILES = 30
 
 import os
+
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-import dj_database_url
-import os
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Database — gamitin ang DATABASE_URL mula sa Railway
 if os.environ.get('DATABASE_URL'):
+    import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
